@@ -1,0 +1,103 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 p-6">
+    <div class="md:col-span-1 bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-bold mb-6 text-slate-800">{{ isEditing ? 'Edit Todo' : 'Add New Todo' }}</h2>
+      
+      <div *ngIf="error" class="bg-red-100 text-red-700 p-3 rounded-md mb-6">
+        {{ error }}
+      </div>
+      
+      <form [formGroup]="todoForm" (ngSubmit)="onSubmit()">
+        <div class="mb-6">
+          <label for="title" class="block mb-2 text-gray-600 font-medium">Title</label>
+          <input 
+            type="text" 
+            id="title"
+            formControlName="title"
+            placeholder="Enter todo title"
+            class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+          <div *ngIf="todoForm.get('title')?.invalid && todoForm.get('title')?.touched" 
+               class="text-red-500 text-sm mt-1">
+            Title is required
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <label for="description" class="block mb-2 text-gray-600 font-medium">Description</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            placeholder="Enter todo description (optional)"
+            rows="3"
+            class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ></textarea>
+        </div>
+        
+        <div class="flex justify-between">
+          <button 
+            type="submit" 
+            [disabled]="todoForm.invalid"
+            class="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {{ isEditing ? 'Update' : 'Add' }} Todo
+          </button>
+          
+          <button 
+            *ngIf="isEditing"
+            type="button" 
+            (click)="cancelEdit()" 
+            class="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  
+    <div class="md:col-span-2 bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-bold mb-6 text-slate-800">My Todos</h2>
+      
+      <div *ngIf="isLoading" class="text-center text-gray-500 py-6">
+        Loading todos...
+      </div>
+      
+      <div *ngIf="!isLoading && todos.length === 0" class="text-center text-gray-500 py-6">
+        No todos found. Add one to get started!
+      </div>
+      
+      <ul *ngIf="!isLoading && todos.length > 0" class="divide-y divide-gray-200">
+        <li *ngFor="let todo of todos" class="py-4 flex justify-between items-start">
+          <div class="flex-1">
+            <div class="flex items-center">
+              <div class="relative mr-3">
+                <input 
+                  type="checkbox" 
+                  [checked]="todo.completed"
+                  (change)="toggleComplete(todo)"
+                  class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                >
+              </div>
+              <h3 [class.line-through]="todo.completed" [class.text-gray-400]="todo.completed" class="font-medium">
+                {{ todo.title }}
+              </h3>
+            </div>
+            
+            <p *ngIf="todo.description" class="mt-1 text-gray-500 ml-8">{{ todo.description }}</p>
+            
+            <div *ngIf="todo.createdAt" class="text-xs text-gray-400 mt-1 ml-8">
+              Created: {{ todo.createdAt | date:'short' }}
+            </div>
+          </div>
+          
+          <div class="flex space-x-2">
+            <button (click)="editTodo(todo)" class="text-blue-500 hover:text-blue-700">
+              <span class="material-icons">edit</span>
+            </button>
+            <button (click)="deleteTodo(todo._id!)" class="text-red-500 hover:text-red-700">
+              <span class="material-icons">delete</span>
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
